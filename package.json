@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An AI-assisted, AST-based migration pipeline that automates website migration from any tech stack to any other tech stack, starting with PHP to React/Next.js by separating and transforming frontend, backend, and database logic independently.",
   "main": "index.js",
+  "type" : "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.26.10",
     "@babel/generator": "^7.27.0",
     "@babel/parser": "^7.27.0",
     "@babel/traverse": "^7.27.0",
