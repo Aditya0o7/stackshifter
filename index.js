@@ -1,4 +1,4 @@
-import { parse } from "@babel/parser";
+import parser from "@babel/parser";
 import _traverse from "@babel/traverse";
 import fs from "fs";
 
@@ -7,7 +7,7 @@ const traverse = _traverse.default;
 const jsxCode = fs.readFileSync("./sample.jsx", "utf-8");
 
 // Parse JSX into AST
-const ast = parse(jsxCode, {
+const ast = parser.parse(jsxCode, {
   sourceType: "module",
   plugins: ["jsx"],
 });

@@ -34,9 +34,13 @@ function literalFor(value) {
   }
   return t.stringLiteral(String(value));
 }
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function transformJSXToUAST(ast) {
   traverse(ast, {
-    // Core JSX Elements
     JSXOpeningElement(path) {
       path.replaceWith(
         t.objectExpression([
@@ -88,8 +92,6 @@ function transformJSXToUAST(ast) {
         ])
       );
     },
-
-    // JSX Expressions & Spread Elements
     JSXExpressionContainer(path) {
       path.replaceWith(
         t.objectExpression([
@@ -114,37 +116,27 @@ function transformJSXToUAST(ast) {
         ])
       );
     },
-
-    // JavaScript Structures Inside JSX
     VariableDeclaration(path) {
-      const transformedDecls = path.node.declarations.map(dec => {
-        return transformNode(dec); // ⚠️ Make sure this returns plain JS objects, not Babel nodes
-      });
-
+      const transformedDecls = path.node.declarations.map(dec => transformNode(dec));
       path.replaceWith(
         t.objectExpression([
           t.objectProperty(t.identifier('type'), t.stringLiteral('UAST_VarDecl')),
           t.objectProperty(
             t.identifier('declarations'),
             t.arrayExpression(
-              transformedDecls.map(transformed => {
-                if (!transformed || typeof transformed !== 'object') {
-                  return t.nullLiteral();
-                }
-
-                return t.objectExpression(
+              transformedDecls.map(transformed =>
+                t.objectExpression(
                   Object.entries(transformed).map(([key, value]) =>
                     t.objectProperty(t.identifier(key), literalFor(value))
                   )
-                );
-              })
+                )
+              )
             )
           ),
           t.objectProperty(t.identifier('kind'), t.stringLiteral(path.node.kind)),
         ])
       );
     },
-
     ArrowFunctionExpression(path) {
       path.replaceWith(
         t.objectExpression([
@@ -215,14 +207,10 @@ function transformJSXToUAST(ast) {
     },
     CallExpression(path) {
       const calleeName = path.node.callee.name;
-      let newType;
-
-      if (['useState', 'useEffect', 'useRef', 'useContext', 'useReducer'].includes(calleeName)) {
-        newType = `UAST_${capitalize(calleeName)}`;
-      } else {
-        newType = 'UAST_CallExpr';
-      }
-
+      const reactHooks = ['useState', 'useEffect', 'useRef', 'useContext', 'useReducer'];
+      const newType = reactHooks.includes(calleeName)
+        ? `UAST_${capitalize(calleeName)}`
+        : 'UAST_CallExpr';
       path.replaceWith(
         t.objectExpression([
           t.objectProperty(t.identifier('type'), t.stringLiteral(newType)),
@@ -301,15 +289,9 @@ function transformJSXToUAST(ast) {
         ])
       );
     },
-    JSXEmptyExpression(path) {
-      path.replaceWith(
-        t.objectExpression([
-          t.objectProperty(t.identifier('type'), t.stringLiteral('UAST_EmptyExpr')),
-        ])
-      );
-    },
   });
 }
 
 transformJSXToUAST(normalizedAst);
-console.log(JSON.stringify(normalizedAst, null, 2));
+fs.writeFileSync('./output_uast.json', JSON.stringify(normalizedAst, null, 2));
+console.log('✅ UAST written to output_uast.json');
