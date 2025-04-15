@@ -17,6 +17,7 @@ const ast = parser.parse(jsxCode, {
 
 // Normalize the Babel AST (this cleans up empty texts, fragments, etc.)
 const normalizedAst = normalizeJSX(ast);
+fs.writeFileSync('output1.json', JSON.stringify(ast, null, 2), 'utf-8');
 
 // Convert the normalized Babel AST to a Universal AST (UAST)
 const uast = transformNodeTCO(normalizedAst);
@@ -41,5 +42,6 @@ const output = generate(
 );
 console.log("------------------------------------------------------------------------------")
 console.log(JSON.stringify(tsxAst, null, 2));
+fs.writeFileSync('output2.json', JSON.stringify(tsxAst, null, 2), 'utf-8');
 console.log("------------------------------------------------------------------------------")
 console.log(JSON.stringify(output, null, 2));
