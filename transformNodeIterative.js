@@ -74,6 +74,7 @@ function transformNodeTCO(node) {
       case 'JSXText':
         return () => cont({ type: 'UAST_Text', value: node.value });
       case 'JSXFragment':
+        // Produce a fragment UAST node
         return () => _transformArray(node.children, children =>
           cont({ type: 'UAST_Fragment', children })
         );
@@ -89,6 +90,9 @@ function transformNodeTCO(node) {
         return () => _transform(node.expression, expression =>
           cont({ type: 'UAST_SpreadChild', expression })
         );
+      // If you use this as a helper marker, you can keep it as is
+      case 'JSXBoundaryElement':
+        return () => cont({ type: 'UAST_BoundaryElement', marker: '>' });
       // Variable declarations and declarators
       case 'VariableDeclaration':
         return () => _transformArray(node.declarations, declarations =>
@@ -187,8 +191,6 @@ function transformNodeTCO(node) {
         );
       case 'JSXEmptyExpression':
         return () => cont({ type: 'UAST_EmptyExpr' });
-      case 'JSXBoundaryElement':
-        return ()=>cont({ type: 'UAST_BoundaryElement',marker:'>' });
       default:
         // Deeply clone and transform all properties of the node.
         return () => deepTransform(node, _transform, cont);

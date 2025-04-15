@@ -25,7 +25,8 @@ function EnterpriseDashboard() {
       acc[user.role] = (acc[user.role] || 0) + 1;
       return acc;
     }, {});
-  }, [users]);
+  }, [users]); // hello babu
+
 
   const handleTabChange = (tab) => setActiveTab(tab);
   const handleSearch = (e) => setFilter(e.target.value);
@@ -48,7 +49,8 @@ function EnterpriseDashboard() {
               onClick={() => handleTabChange(tab)}
             >
               {tab}
-            </button>
+            </button> /* ab cahsbchasbcjas jc adsj 
+            cd*/
           ))}
         </div>
       </header>
