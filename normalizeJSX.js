@@ -1,23 +1,7 @@
-
-import parser from "@babel/parser";
 import _traverse from "@babel/traverse";
 import * as t from "@babel/types";
-// const jsxCode = `
-// const App = () => (
-//   <>
-//     <h1>Hello, World!</h1>
-//     <p>{/* comment */}</p>
-//     <span>    </span>
-//     <br />
-//   </>
-// );
-// `;
 
 const traverse = _traverse.default;
-// const ast = parser.parse(jsxCode, {
-//   sourceType: 'module',
-//   plugins: ['jsx'],
-// });
 
 function normalizeJSX(ast) {
   traverse(ast, {
@@ -53,11 +37,4 @@ function normalizeJSX(ast) {
   return ast;
 }
 
-// Log AST
-// console.log(JSON.stringify(ast, null, 2));
-
-// console.log("..................................................");
-
-// const normalizedAST = normalizeJSX(ast);
-// console.log(JSON.stringify(normalizedAST, null, 2));
 export default normalizeJSX;
