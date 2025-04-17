@@ -1,3 +1,4 @@
+import * as t from "@babel/types";
 import pkg from '@babel/types';
 const {
   identifier,
@@ -38,6 +39,37 @@ const {
 } = pkg;
 
 // Utility: Normalize lists that are objects with numeric keys to arrays.
+
+
+function convertToJSXName(node) {
+  if (!node || typeof node !== "object") return node;
+
+  switch (node.type) {
+    // plain <Foo>
+    case "Identifier":
+    case "UAST_Identifier":
+      return t.jsxIdentifier(node.name);
+
+    // member names, e.g. <React.Fragment> or <My.Namespace.Component>
+    case "UAST_MemberExpr":
+    case "MemberExpression":
+      return t.jsxMemberExpression(
+        convertToJSXName(node.object),
+        convertToJSXName(node.property)
+      );
+
+    // namespaced, e.g. <svg:path> or <custom:widget>
+    case "UAST_NamespacedName":
+      return t.jsxNamespacedName(
+        convertToJSXName(node.namespace),
+        convertToJSXName(node.name)
+      );
+
+    default:
+      throw new Error(`Unexpected JSX name node: ${node.type}`);
+  }
+}
+
 function normalizeList(obj) {
   if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
     const keys = Object.keys(obj);
@@ -121,20 +153,21 @@ function convertUASTToTSX(uastNode) {
       return jsxElement(opening, closing, children, false);
     }
     case "UAST_OpenTag": {
-      let nameNode = convertUASTToTSX(uastNode.name);
-      if (nameNode && (nameNode.type === "UAST_Identifier" || nameNode.type === "Identifier")) {
-        nameNode = jsxIdentifier(nameNode.name);
-      }
+      // Replaces the old name handling logic
+      const tagName = convertToJSXName(uastNode.name);
+    
       const attributes = uastNode.attributes.map(convertUASTToTSX);
-      return jsxOpeningElement(nameNode, attributes, false);
+      const selfClosing = !!uastNode.selfClosing;
+    
+      return jsxOpeningElement(tagName, attributes, selfClosing);
     }
+    
     case "UAST_CloseTag": {
-      let nameNode = convertUASTToTSX(uastNode.name);
-      if (nameNode && (nameNode.type === "UAST_Identifier" || nameNode.type === "Identifier")) {
-        nameNode = jsxIdentifier(nameNode.name);
-      }
-      return jsxClosingElement(nameNode);
+      // Again, use our JSX name builder for consistency
+      const tagName = convertToJSXName(uastNode.name);
+      return jsxClosingElement(tagName);
     }
+    
     // --- JSX Fragments ---
     case "UAST_Fragment": {
       const children = uastNode.children.map(convertUASTToTSX);

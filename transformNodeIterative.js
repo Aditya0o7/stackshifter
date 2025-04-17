@@ -58,7 +58,12 @@ function transformNodeTCO(node) {
       case 'JSXOpeningElement':
         return () => _transform(node.name, name =>
           _transformArray(node.attributes, attrs =>
-            cont({ type: 'UAST_OpenTag', name, attributes: attrs })
+            cont({ 
+              type: 'UAST_OpenTag', 
+              name, 
+              attributes: attrs,
+              selfClosing: node.selfClosing || false
+             })
           )
         );
       case 'JSXClosingElement':
