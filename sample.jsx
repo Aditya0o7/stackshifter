@@ -5,7 +5,7 @@
     {
       user.isLoggedIn ? (
         <Profile 
-          {...user}
+          {...user} // added comment
           showDetails
           onLogout={handleLogout}
         />
