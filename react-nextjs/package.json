@@ -10,6 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "fs-extra": "^11.3.0"
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.0",
+    "globby": "^14.1.0",
+    "path": "^0.12.7"
   }
 }
