@@ -1,69 +1,77 @@
-#!/usr/bin/env node
-/**
- * Usage:
- *   node srcHandle.js <path-to-react-src> <path-to-next-app>
- */
 
 import fs from 'fs-extra';
 import path from 'path';
 import { globby } from 'globby';
 
-async function run(srcDir, nextAppDir) {
-  const pagesDir     = path.join(nextAppDir, 'pages');
-  const componentsDir = path.join(nextAppDir, 'components');
+async function migrate(srcDir, outDir) {
+  const pagesDir = path.join(outDir, 'pages');
+  const compsDir = path.join(outDir, 'components');
 
-  // Clean & recreate
+  // Clean & recreate directories
   await fs.remove(pagesDir);
-  await fs.remove(componentsDir);
+  await fs.remove(compsDir);
   await fs.ensureDir(pagesDir);
-  await fs.ensureDir(componentsDir);
+  await fs.ensureDir(compsDir);
 
-  // 1) Copy App.jsx/tsx → pages/_app.jsx(tsx)
-  const appMatch = await globby(['App.jsx', 'App.tsx'], { cwd: srcDir });
-  if (appMatch[0]) {
-    const ext = path.extname(appMatch[0]);
+  // 1) Detect root component from main.jsx / index.jsx entry (ignore the file itself)
+  const entryFiles = await globby(['main.jsx', 'main.tsx', 'index.jsx', 'index.tsx'], { cwd: srcDir });
+  let rootComponentRel;
+  if (entryFiles.length) {
+    const entryPath = path.join(srcDir, entryFiles[0]);
+    const content = await fs.readFile(entryPath, 'utf8');
+    const match = content.match(/render\s*\(\s*<([A-Z][A-Za-z0-9_]*)\b/);
+    const compName = match ? match[1] : null;
+    if (compName) {
+      const importRegex = new RegExp(`import\\s+${compName}\\s+from\\s+['\\"](.+)['\\"];`);
+      const importMatch = content.match(importRegex);
+      if (importMatch) {
+        const importPath = importMatch[1];
+        const ext = path.extname(importPath) || '.jsx';
+        rootComponentRel = importPath.endsWith(ext)
+          ? importPath
+          : `${importPath}${ext}`;
+      }
+    }
+  }
+
+  // Fallback to App.jsx/tsx if detection fails
+  if (!rootComponentRel) {
+    const fallback = (await globby(['App.jsx','App.tsx'], { cwd: srcDir }))[0];
+    rootComponentRel = fallback;
+  }
+
+  // Copy root component to pages/index.ext
+  if (rootComponentRel) {
+    const ext = path.extname(rootComponentRel);
     await fs.copy(
-      path.join(srcDir, appMatch[0]),
-      path.join(pagesDir, `_app${ext}`)
+      path.join(srcDir, rootComponentRel),
+      path.join(pagesDir, `index${ext}`)
     );
+    console.log(`→ Root component ${rootComponentRel} → pages/index${ext}`);
   }
 
-  // 2) Copy everything under src/components → components
-  const compFiles = await globby(['components/**/*'], { cwd: srcDir, dot: true });
+  // 2) Copy src/components/**/*.{js,jsx,ts,tsx} → components
+  const compFiles = await globby(['components/**/*.{js,jsx,ts,tsx}'], { cwd: srcDir });
   for (const rel of compFiles) {
-    const srcPath  = path.join(srcDir, rel);
-    const destPath = path.join(componentsDir, path.relative('components', rel));
+    const srcPath = path.join(srcDir, rel);
+    const destPath = path.join(compsDir, path.relative('components', rel));
     await fs.ensureDir(path.dirname(destPath));
     await fs.copy(srcPath, destPath);
   }
+  console.log(`→ Copied ${compFiles.length} component files to components/`);
 
-  // 3) Copy all other .jsx/.tsx under src (excluding components/) → pages
-  const pageFiles = await globby(['**/*.{jsx,tsx}'], {
-    cwd: srcDir,
-    ignore: ['components/**']
-  });
-  for (const rel of pageFiles) {
-    const srcPath  = path.join(srcDir, rel);
-    const destPath = path.join(pagesDir, rel);
-    await fs.ensureDir(path.dirname(destPath));
-    await fs.copy(srcPath, destPath);
-  }
-
-  console.log('✅ Extraction complete');
-  console.log(`→ pages:     ${pagesDir}`);
-  console.log(`→ components: ${componentsDir}`);
-  console.log(`→ src:       ${srcDir}`);
-  console.log(`→ next:      ${nextAppDir}`);
+  console.log('✅ Migration-output prepared: pages/ and components/ only');
 }
 
-// --- ESM-compatible “main” logic ---
-const [srcDir, nextAppDir] = process.argv.slice(2);
-if (!srcDir || !nextAppDir) {
-  console.error('Usage: node srcHandle.js <react-src> <next-app>');
+// CLI entry
+
+const srcDir = "sample-react-app/src";
+const outDir = "migration-output";
+if (!srcDir || !outDir) {
+  console.error('Usage: node src_to_migration_v3.js <react-src> <migration-output>');
   process.exit(1);
 }
-
-run(srcDir, nextAppDir).catch(err => {
-  console.error('❌', err);
+migrate(srcDir, outDir).catch(err => {
+  console.error(err);
   process.exit(1);
 });
