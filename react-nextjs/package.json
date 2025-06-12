@@ -13,8 +13,12 @@
     "fs": "^0.0.1-security",
     "fs-extra": "^11.3.0",
     "globby": "^14.1.0",
+    "jscodeshift": "^17.3.0",
     "path": "^0.12.7",
     "postcss": "^8.5.3",
     "postcss-safe-parser": "^7.0.1"
+  },
+  "devDependencies": {
+    "@babel/traverse": "^7.27.4"
   }
 }

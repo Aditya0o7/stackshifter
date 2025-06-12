@@ -1,9 +1,8 @@
-
 import fs from 'fs-extra';
 import path from 'path';
 import { globby } from 'globby';
 
-async function migrate(srcDir, outDir) {
+async function srcHandle(srcDir = "sample-react-app/src", outDir = "migration-output") {
   const pagesDir = path.join(outDir, 'pages');
   const compsDir = path.join(outDir, 'components');
 
@@ -13,7 +12,27 @@ async function migrate(srcDir, outDir) {
   await fs.ensureDir(pagesDir);
   await fs.ensureDir(compsDir);
 
-  // 1) Detect root component from main.jsx / index.jsx entry (ignore the file itself)
+  // 1) Copy src/pages/**/*.{js,jsx,ts,tsx} → pages
+  const pageFiles = await globby(['pages/**/*.{js,jsx,ts,tsx}'], { cwd: srcDir });
+  for (const rel of pageFiles) {
+    const srcPath = path.join(srcDir, rel);
+    const destPath = path.join(pagesDir, path.relative('pages', rel));
+    await fs.ensureDir(path.dirname(destPath));
+    await fs.copy(srcPath, destPath);
+  }
+  console.log(`→ Copied ${pageFiles.length} page files to pages/`);
+
+  // 2) Copy src/components/**/*.{js,jsx,ts,tsx} → components
+  const compFiles = await globby(['components/**/*.{js,jsx,ts,tsx}'], { cwd: srcDir });
+  for (const rel of compFiles) {
+    const srcPath = path.join(srcDir, rel);
+    const destPath = path.join(compsDir, path.relative('components', rel));
+    await fs.ensureDir(path.dirname(destPath));
+    await fs.copy(srcPath, destPath);
+  }
+  console.log(`→ Copied ${compFiles.length} component files to components/`);
+
+  // 3) Detect root component from main.jsx / index.jsx entry (ignore the file itself)
   const entryFiles = await globby(['main.jsx', 'main.tsx', 'index.jsx', 'index.tsx'], { cwd: srcDir });
   let rootComponentRel;
   if (entryFiles.length) {
@@ -40,38 +59,20 @@ async function migrate(srcDir, outDir) {
     rootComponentRel = fallback;
   }
 
-  // Copy root component to pages/index.ext
+  // Copy root component to pages/index.ext if not already present
   if (rootComponentRel) {
     const ext = path.extname(rootComponentRel);
-    await fs.copy(
-      path.join(srcDir, rootComponentRel),
-      path.join(pagesDir, `index${ext}`)
-    );
-    console.log(`→ Root component ${rootComponentRel} → pages/index${ext}`);
+    const indexPath = path.join(pagesDir, `index${ext}`);
+    if (!fs.existsSync(indexPath)) {
+      await fs.copy(
+        path.join(srcDir, rootComponentRel),
+        indexPath
+      );
+      console.log(`→ Root component ${rootComponentRel} → pages/index${ext}`);
+    }
   }
-
-  // 2) Copy src/components/**/*.{js,jsx,ts,tsx} → components
-  const compFiles = await globby(['components/**/*.{js,jsx,ts,tsx}'], { cwd: srcDir });
-  for (const rel of compFiles) {
-    const srcPath = path.join(srcDir, rel);
-    const destPath = path.join(compsDir, path.relative('components', rel));
-    await fs.ensureDir(path.dirname(destPath));
-    await fs.copy(srcPath, destPath);
-  }
-  console.log(`→ Copied ${compFiles.length} component files to components/`);
 
   console.log('✅ Migration-output prepared: pages/ and components/ only');
 }
 
-// CLI entry
-
-const srcDir = "sample-react-app/src";
-const outDir = "migration-output";
-if (!srcDir || !outDir) {
-  console.error('Usage: node src_to_migration_v3.js <react-src> <migration-output>');
-  process.exit(1);
-}
-migrate(srcDir, outDir).catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+export default srcHandle;
