@@ -1,6 +1,6 @@
 # React-to-Next.js Migration Pipeline
 
-This project provides an automated pipeline to convert a standard React (Vite/CRA-style) project into a Next.js-compatible codebase. It handles file restructuring, CSS Modules migration, import path correction, and more—making it easy to modernize your React app for Next.js.
+This project provides an automated pipeline to convert a standard React (Vite/CRA-style) project into a Next.js-compatible codebase. It handles the file restructuring, CSS Modules migration, import path correction, and more—making it easy to modernize your React app for Next.js.
 
 ---
 
