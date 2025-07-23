@@ -81,10 +81,10 @@ function fixImportPathsInFile(filePath, componentsDir, stylesDir) {
 }
 
 // Exported main function for pipeline
-export default async function correctImportPaths() {
-  const pagesDir = 'migration-output/pages';
-  const componentsDir = 'migration-output/components';
-  const stylesDir = 'migration-output/styles';
+export default async function correctImportPaths(outDir) {
+  const pagesDir = path.join(outDir, 'pages');
+  const componentsDir = path.join(outDir, 'components');
+  const stylesDir = path.join(outDir, 'styles');
 
   const filesToFix = [
     ...getAllJsFiles(pagesDir),

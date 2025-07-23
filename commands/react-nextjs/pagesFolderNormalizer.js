@@ -80,8 +80,8 @@ function parseRoutesFromFile(filePath) {
   return routes;
 }
 
-function buildRouteMap() {
-  const SRC_PAGES_DIR = 'migration-output/pages';
+function buildRouteMap(outDir) {
+  const SRC_PAGES_DIR = path.join(outDir, 'pages');
   const files = getAllFiles(SRC_PAGES_DIR);
   const routeMap = {};
   for (const file of files) {
@@ -97,9 +97,9 @@ function buildRouteMap() {
   return routeMap;
 }
 
-function findComponentFile(componentName) {
-  const SRC_PAGES_DIR = 'migration-output/pages';
-  const COMPONENTS_DIR = 'migration-output/components';
+function findComponentFile(componentName, outDir) {
+  const SRC_PAGES_DIR = path.join(outDir, 'pages');
+  const COMPONENTS_DIR = path.join(outDir, 'components');
   const searchDirs = [SRC_PAGES_DIR, COMPONENTS_DIR];
   for (const dir of searchDirs) {
     const files = getAllFiles(dir);
@@ -118,10 +118,11 @@ function findComponentFile(componentName) {
   return null;
 }
 
-async function pagesFolderNormalizer() {
-  const OUTPUT_PAGES_DIR = 'migration-output/pages-new';
+async function pagesFolderNormalizer(outDir) {
+  const SRC_PAGES_DIR = path.join(outDir, 'pages');
+  const OUTPUT_PAGES_DIR = path.join(outDir, 'pages-new');
 
-  const routeMap = buildRouteMap();
+  const routeMap = buildRouteMap(outDir);
   fs.ensureDirSync(OUTPUT_PAGES_DIR);
 
   // Debug: log all detected routes
@@ -152,7 +153,7 @@ async function pagesFolderNormalizer() {
       }
 
       const { component, file } = arr[0];
-      const compFile = findComponentFile(component);
+      const compFile = findComponentFile(component, outDir);
 
       if (!compFile) {
         console.warn(
@@ -203,7 +204,7 @@ async function pagesFolderNormalizer() {
     // If catch-all route was found, ensure both files exist and use the correct component
     let importLine;
     if (catchAllComponent) {
-      const compFile = findComponentFile(catchAllComponent);
+      const compFile = findComponentFile(catchAllComponent, outDir);
       if (compFile) {
         const compBase = path.basename(compFile);
         const compTarget = path.join(OUTPUT_PAGES_DIR, '..', 'components', compBase);

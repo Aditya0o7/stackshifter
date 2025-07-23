@@ -131,10 +131,10 @@ function updateJsxFileForSideEffectImport(jsPath, cssPath, classMap) {
 }
 
 // Main logic
-export default function fixClassNames() {
+export default function fixClassNames(outDir) {
   const TARGET_DIRS = [
-    'migration-output/pages-new',
-    'migration-output/components'
+    path.join(outDir, 'components'),
+    path.join(outDir, 'pages-new')
   ];
   for (const dir of TARGET_DIRS) {
     const files = getAllJsFiles(dir);

@@ -146,10 +146,10 @@ function transformer(file, api) {
 }
 
 // Batch runner for migration-output/components and migration-output/pages-new
-async function jsxLogicHandler() {
+async function jsxLogicHandler(outDir) {
   const TARGET_DIRS = [
-    'migration-output/components',
-    'migration-output/pages-new'
+    path.join(outDir, 'components'),
+    path.join(outDir, 'pages-new')
   ];
   for (const dir of TARGET_DIRS) {
     const files = getAllJsFiles(dir);
@@ -167,8 +167,8 @@ async function jsxLogicHandler() {
     }
   }
   // Move pages-new to pages after all transforms
-  const pagesDir = path.join('migration-output', 'pages');
-  const pagesNewDir = path.join('migration-output', 'pages-new');
+  const pagesDir = path.join(outDir, 'pages');
+  const pagesNewDir = path.join(outDir, 'pages-new');
   try {
     if (fs.existsSync(pagesDir)) {
       fs.rmSync(pagesDir, { recursive: true, force: true });

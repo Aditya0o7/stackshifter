@@ -14,12 +14,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Read source and destination from CLI args (with defaults)
-const [,, srcDir = './sample-react-app/public', destDir = './migration-output/public'] = process.argv;
+// const [,, srcDir = './sample-react-app/public', destDir = './migration-output/public'] = process.argv;
 
-async function copyPublicAssets() {
+async function copyPublicAssets(srcDir, destDir) {
   try {
-    const absoluteSrc = path.resolve(__dirname, srcDir);
-    const absoluteDest = path.resolve(__dirname, destDir);
+    const absoluteSrc = path.resolve(srcDir);
+    const absoluteDest = path.resolve(destDir);
 
     // Ensure destination exists
     await fs.ensureDir(absoluteDest);
@@ -35,9 +35,8 @@ async function copyPublicAssets() {
     
     return true;
   } catch (err) {
-    
-    process.exit(1);
-    return false;
+    console.error(`❌ Error copying public assets from ${srcDir} to ${destDir}:`, err);
+    throw err; // Re-throw to handle upstream
   }
 }
 
