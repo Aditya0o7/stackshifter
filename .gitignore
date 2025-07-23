@@ -7,12 +7,79 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Diagnostic reports (Node.js)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# Editor directories and files
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directories (Istanbul, nyc)
+coverage
+*.lcov
+.nyc_output
+
+# Build and cache folders
+lib-cov
+.build
+.build/
+.cache
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.dist
+.dist-ssr
+.next
+out
+.nuxt
+.vuepress/dist
+.temp
+.docusaurus
+.fusebox/
+.serverless/
+.dynamodb/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+bower_components/
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional caches and histories
+.npm
+.eslintcache
+.stylelintcache
+.node_repl_history
+
+# Compiled binary addons
+build/Release
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn integrity files and cache
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Editor and IDE files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,5 +90,12 @@ dist-ssr
 *.sln
 *.sw?
 
+# Version control and package manager lock files you want to ignore
 package-lock.json
 package.json
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions for testing
+.vscode-test
