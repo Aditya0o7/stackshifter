@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name('stackshifter')
   .description('CLI tool to shift your stack effortlessly 😎')
-  .version('1.0.0');
+  .version('1.0.1');
 
 program
   .command('shiftto')
@@ -37,7 +37,7 @@ program
       await runJsxToTsxConversion(inputFile);
 
     } else {
-      console.error('❌ Unknown target. Use "nextjs", "jsx", or "jsx-tsx".');
+      console.error('❌ Unknown target. Use "nextjs", or "tsx"');
       process.exit(1);
     }
   });
