@@ -1,6 +1,6 @@
 {
   "name": "stackshifter",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "readme": "README-npm.md",
   "description": "Convert JSX to TSX and React to Next.js migrations",
   "type": "module",
