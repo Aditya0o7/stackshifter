@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { globby } from 'globby';
 
-async function srcHandle(srcDir = "sample-react-app/src", outDir = "migration-output") {
+async function srcHandle(srcDir = "D:/stackshifter/commands/react-nextjs/sample-react-app/src", outDir = "D:/stackshifter/commands/react-nextjs/sample-react-app/migration-output") {
   const pagesDir = path.join(outDir, 'pages');
   const compsDir = path.join(outDir, 'components');
 
@@ -32,47 +32,58 @@ async function srcHandle(srcDir = "sample-react-app/src", outDir = "migration-ou
   }
   console.log(`→ Copied ${compFiles.length} component files to components/`);
 
-  // 3) Detect root component from main.jsx / index.jsx entry (ignore the file itself)
-  const entryFiles = await globby(['main.jsx', 'main.tsx', 'index.jsx', 'index.tsx'], { cwd: srcDir });
-  let rootComponentRel;
-  if (entryFiles.length) {
-    const entryPath = path.join(srcDir, entryFiles[0]);
-    const content = await fs.readFile(entryPath, 'utf8');
-    const match = content.match(/render\s*\(\s*<([A-Z][A-Za-z0-9_]*)\b/);
-    const compName = match ? match[1] : null;
-    if (compName) {
-      const importRegex = new RegExp(`import\\s+${compName}\\s+from\\s+['\\"](.+)['\\"];`);
-      const importMatch = content.match(importRegex);
-      if (importMatch) {
-        const importPath = importMatch[1];
-        const ext = path.extname(importPath) || '.jsx';
-        rootComponentRel = importPath.endsWith(ext)
-          ? importPath
-          : `${importPath}${ext}`;
+// 3) Detect root component from main.jsx / index.jsx entry (ignore the file itself)
+const entryFiles = await globby(['main.jsx', 'main.tsx', 'index.jsx', 'index.tsx'], { cwd: srcDir });
+let rootComponentRel;
+if (entryFiles.length) {
+  const entryPath = path.join(srcDir, entryFiles[0]);
+  const content = await fs.readFile(entryPath, 'utf8');
+  // Try to detect <App /> or <App ... />
+  const match = content.match(/<([A-Z][A-Za-z0-9_]*)\b/);
+  const compName = match ? match[1] : null;
+  if (compName) {
+    // Try to find import for that component
+    const importRegex = new RegExp(`import\\s+${compName}\\s+from\\s+['"](.+)['"]`);
+    const importMatch = content.match(importRegex);
+    if (importMatch) {
+      let importPath = importMatch[1];
+      // Support './App' or './App.jsx'
+      if (!importPath.endsWith('.jsx') && !importPath.endsWith('.tsx')) {
+        // Try both .jsx and .tsx
+        if (await fs.pathExists(path.join(srcDir, importPath + '.jsx'))) {
+          importPath += '.jsx';
+        } else if (await fs.pathExists(path.join(srcDir, importPath + '.tsx'))) {
+          importPath += '.tsx';
+        }
+      }
+      if (await fs.pathExists(path.join(srcDir, importPath))) {
+        rootComponentRel = importPath;
       }
     }
   }
+}
 
-  // Fallback to App.jsx/tsx if detection fails
-  if (!rootComponentRel) {
-    const fallback = (await globby(['App.jsx','App.tsx'], { cwd: srcDir }))[0];
-    rootComponentRel = fallback;
-  }
+// Fallback to App.jsx/tsx if detection fails
+if (!rootComponentRel) {
+  const fallback = (await globby(['App.jsx','App.tsx'], { cwd: srcDir }))[0];
+  rootComponentRel = fallback;
+}
 
-  // Copy root component to pages/index.ext if not already present
-  if (rootComponentRel) {
-    const ext = path.extname(rootComponentRel);
-    const indexPath = path.join(pagesDir, `index${ext}`);
-    if (!fs.existsSync(indexPath)) {
-      await fs.copy(
-        path.join(srcDir, rootComponentRel),
-        indexPath
-      );
-      console.log(`→ Root component ${rootComponentRel} → pages/index${ext}`);
-    }
+// Copy root component to pages/index.ext if not already present
+if (rootComponentRel) {
+  const ext = path.extname(rootComponentRel);
+  const indexPath = path.join(pagesDir, `index${ext}`);
+  if (!await fs.pathExists(indexPath)) {
+    await fs.copy(
+      path.join(srcDir, rootComponentRel),
+      indexPath
+    );
+    console.log(`→ Root component ${rootComponentRel} → pages/index${ext}`);
   }
+}
 
   console.log('✅ Migration-output prepared: pages/ and components/ only');
 }
 
+// srcHandle();
 export default srcHandle;

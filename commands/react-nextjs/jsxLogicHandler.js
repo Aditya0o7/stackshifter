@@ -135,7 +135,7 @@ function transformer(file, api) {
       }
       body.splice(insertIdx, 0,
         j.importDeclaration(
-          [ j.importDefaultSpecifier(j.identifier('Link')) ],
+          [j.importDefaultSpecifier(j.identifier('Link'))],
           j.literal('next/link')
         )
       );
@@ -170,13 +170,25 @@ async function jsxLogicHandler(outDir) {
   const pagesDir = path.join(outDir, 'pages');
   const pagesNewDir = path.join(outDir, 'pages-new');
   try {
-    if (fs.existsSync(pagesDir)) {
-      fs.rmSync(pagesDir, { recursive: true, force: true });
-      console.log('Deleted old migration-output/pages folder.');
-    }
-    if (fs.existsSync(pagesNewDir)) {
+    const getAllJsFiles = dir => {
+      if (!fs.existsSync(dir)) return [];
+      return fs.readdirSync(dir).filter(file =>
+        ['.js', '.jsx', '.tsx'].includes(path.extname(file))
+      );
+    };
+
+    const pagesNewFiles = fs.existsSync(pagesNewDir) ? getAllJsFiles(pagesNewDir) : [];
+
+    if (pagesNewFiles.length > 2) { // ignoring [...slug], 404 fallback
+      if (fs.existsSync(pagesDir)) {
+        fs.rmSync(pagesDir, { recursive: true, force: true });
+        console.log('🗑️ Deleted old migration-output/pages folder.');
+      }
       fs.moveSync(pagesNewDir, pagesDir, { overwrite: true });
-      console.log('Moved migration-output/pages-new to migration-output/pages.');
+      console.log('✅ Moved pages-new → pages.');
+    } else {
+      console.warn('⚠️ Skipped overwriting pages/. pages-new is likely fallback-only or empty.');
+      fs.removeSync(pagesNewDir); // clean up junk if you want
     }
   } catch (err) {
     console.error('Error during pages folder migration:', err);
@@ -185,3 +197,4 @@ async function jsxLogicHandler(outDir) {
 }
 
 export default jsxLogicHandler;
+export {getAllJsFiles};
