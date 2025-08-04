@@ -92,7 +92,6 @@ build/Release
 
 # Version control and package manager lock files you want to ignore
 package-lock.json
-package.json
 
 # TernJS port file
 .tern-port
