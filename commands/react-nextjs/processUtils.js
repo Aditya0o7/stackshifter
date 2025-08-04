@@ -1,4 +1,4 @@
-// stackshifter\commands\react-nextjs\processUtils.js
+// stackshifter\commands\react-nextjs\processUtils.js\\
 import { spawn } from 'child_process';
 import fs from 'fs';
 export async function execCommand(command, options = {}) {

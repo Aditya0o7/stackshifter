@@ -99,3 +99,4 @@ package.json
 
 # Stores VSCode versions for testing
 .vscode-test
+README-NPM.md

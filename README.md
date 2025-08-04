@@ -1,5 +1,4 @@
-# StackShifter
-
+# StackShifter.
 A powerful CLI tool to effortlessly migrate your React applications to Next.js with automatic file restructuring, CSS Modules conversion, and routing transformation.
 
 ## Features
@@ -248,7 +247,7 @@ After migration, verify these key areas:
 
 ### Development Setup
 ```bash
-git clone https://github.com/yourusername/stackshifter.git
+git clone https://github.com/Aditya0o7/stackshifter.git
 cd stackshifter
 npm install
 npm link

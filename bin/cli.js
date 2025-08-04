@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node \\
 import path from 'path';
 import { Command } from 'commander';
 import runReactToNextPipeline from '../commands/react-nextjs/React-Nextjs-Conversion.js';

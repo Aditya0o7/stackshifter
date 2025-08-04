@@ -67,9 +67,7 @@ src/pages/blog/[id].jsx → src/app/blog/[id]/page.js
 
 ## Full Documentation
 
-- [Full Documentation](https://github.com/yourusername/stackshifter)
-- [Report Issues](https://github.com/yourusername/stackshifter/issues)
-
+- [Full Documentation](https://github.com/Aditya0o7/stackshifter)
 ---
 
 **Happy migrating!**
