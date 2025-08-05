@@ -269,7 +269,7 @@ Built with ❤️ using:
 
 ## 📄 License
 
-MIT © [Aditya Sharma](https://github.com/Aditya0o7), [Abhinav Verma](https://github.com/abhinavverma)
+MIT © [Aditya Sharma](https://github.com/Aditya0o7), [Abhinav Verma](https://github.com/Abhinnavverma)
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
