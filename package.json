@@ -2,6 +2,12 @@
   "name": "stackshifter",
   "version": "1.0.10",
   "readme": "README-npm.md",
+  "license":"MIT",
+  "author": "Aditya Sharma, Abhinav Verma",
+  "contributors": [
+    "Aditya Sharma",
+    "Abhinav Verma"
+  ],
   "description": "Convert JSX to TSX and React to Next.js migrations",
   "type": "module",
   "bin": {
