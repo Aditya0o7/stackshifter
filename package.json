@@ -1,8 +1,8 @@
 {
   "name": "stackshifter",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "readme": "README-npm.md",
-  "license":"MIT",
+  "license": "MIT",
   "author": "Aditya Sharma, Abhinav Verma",
   "contributors": [
     "Aditya Sharma",
