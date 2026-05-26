@@ -1,4 +1,5 @@
-# StackShifter.
+# StackShifter | https://stackshifter-doc.onrender.com/
+
 A powerful CLI tool to effortlessly migrate your React applications to Next.js with automatic file restructuring, CSS Modules conversion, and routing transformation.
 
 ## Features
